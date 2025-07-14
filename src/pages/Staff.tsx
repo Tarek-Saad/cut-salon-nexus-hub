@@ -9,53 +9,73 @@ import {
   Calendar,
   DollarSign,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Wallet,
+  TrendingUp,
+  Minus,
+  CheckCircle
 } from "lucide-react";
 
 const staff = [
   {
     id: 1,
     name: "أحمد الحلاق",
-    position: "كبير الحلاقين",
+    position: "صنايعي",
     phone: "05x-xxx-xxxx",
-    salary: 3500,
-    deductions: 200,
-    netSalary: 3300,
-    attendance: 22,
-    status: "present"
+    dailyWage: 300,
+    todayWithdrawals: 150,
+    bonuses: 50,
+    deductions: 20,
+    currentBalance: 180, // dailyWage + bonuses - withdrawals - deductions
+    isPaidToday: false,
+    paymentStatus: "pending", // pending, paid, deferred
+    status: "present",
+    lastPayment: "2024-01-13"
   },
   {
     id: 2,
     name: "محمد الأسطى",
-    position: "حلاق أول",
+    position: "صنايعي",
     phone: "05x-xxx-xxxx",
-    salary: 3000,
+    dailyWage: 300,
+    todayWithdrawals: 100,
+    bonuses: 0,
     deductions: 0,
-    netSalary: 3000,
-    attendance: 24,
-    status: "present"
+    currentBalance: 200,
+    isPaidToday: false,
+    paymentStatus: "pending",
+    status: "present",
+    lastPayment: "2024-01-13"
   },
   {
     id: 3,
     name: "يوسف المساعد",
-    position: "مساعد حلاق",
+    position: "مساعد",
     phone: "05x-xxx-xxxx",
-    salary: 2200,
-    deductions: 100,
-    netSalary: 2100,
-    attendance: 20,
-    status: "absent"
+    dailyWage: 120,
+    todayWithdrawals: 50,
+    bonuses: 20,
+    deductions: 10,
+    currentBalance: 80,
+    isPaidToday: true,
+    paymentStatus: "paid",
+    status: "present",
+    lastPayment: "2024-01-14"
   },
   {
     id: 4,
     name: "كريم الكاشير",
-    position: "موظف استقبال",
+    position: "مساعد",
     phone: "05x-xxx-xxxx",
-    salary: 2500,
+    dailyWage: 120,
+    todayWithdrawals: 0,
+    bonuses: 0,
     deductions: 0,
-    netSalary: 2500,
-    attendance: 23,
-    status: "present"
+    currentBalance: 120,
+    isPaidToday: false,
+    paymentStatus: "deferred",
+    status: "present",
+    lastPayment: "2024-01-12"
   }
 ];
 
@@ -95,41 +115,79 @@ const Staff = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full lg:w-auto">
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 w-full lg:w-auto">
                     <div className="text-center">
-                      <div className="text-sm text-muted-foreground">المرتب الأساسي</div>
-                      <div className="font-bold">₪{employee.salary}</div>
+                      <div className="text-sm text-muted-foreground">أجر اليوم</div>
+                      <div className="font-bold text-primary">{employee.dailyWage} ج.م</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">السحوبات</div>
+                      <div className="font-bold text-warning">
+                        {employee.todayWithdrawals > 0 ? `-${employee.todayWithdrawals}` : '0'} ج.م
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">البونص</div>
+                      <div className="font-bold text-success">+{employee.bonuses} ج.م</div>
                     </div>
                     <div className="text-center">
                       <div className="text-sm text-muted-foreground">الخصومات</div>
                       <div className="font-bold text-destructive">
-                        {employee.deductions > 0 ? `-₪${employee.deductions}` : '₪0'}
+                        {employee.deductions > 0 ? `-${employee.deductions}` : '0'} ج.م
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-sm text-muted-foreground">صافي المرتب</div>
-                      <div className="font-bold text-success">₪{employee.netSalary}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-muted-foreground">أيام الحضور</div>
-                      <div className="font-bold">{employee.attendance}/24</div>
+                      <div className="text-sm text-muted-foreground">الرصيد الحالي</div>
+                      <div className="font-bold text-lg text-success">{employee.currentBalance} ج.م</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <Badge 
-                      variant={employee.status === 'present' ? 'default' : 'destructive'}
-                      className={
-                        employee.status === 'present' 
-                          ? 'bg-success text-success-foreground' 
-                          : ''
-                      }
-                    >
-                      {employee.status === 'present' ? 'حاضر' : 'غائب'}
-                    </Badge>
-                    <Button variant="outline" size="sm">
-                      تفاصيل
-                    </Button>
+                  <div className="flex flex-col lg:flex-row items-center space-y-2 lg:space-y-0 lg:space-x-3 rtl:space-x-reverse">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                      <Badge 
+                        variant={employee.status === 'present' ? 'default' : 'destructive'}
+                        className={
+                          employee.status === 'present' 
+                            ? 'bg-success text-success-foreground' 
+                            : ''
+                        }
+                      >
+                        {employee.status === 'present' ? 'حاضر' : 'غائب'}
+                      </Badge>
+                      <Badge 
+                        variant={employee.paymentStatus === 'paid' ? 'default' : 'outline'}
+                        className={
+                          employee.paymentStatus === 'paid' 
+                            ? 'bg-primary text-primary-foreground' 
+                            : employee.paymentStatus === 'deferred'
+                            ? 'bg-warning text-warning-foreground'
+                            : 'bg-muted'
+                        }
+                      >
+                        {employee.paymentStatus === 'paid' ? 'مدفوع' : 
+                         employee.paymentStatus === 'deferred' ? 'مؤجل' : 'معلق'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                      <Button variant="outline" size="sm">
+                        <Wallet className="h-4 w-4 mr-1" />
+                        إعطاء فلوس
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Minus className="h-4 w-4 mr-1" />
+                        خصم
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <TrendingUp className="h-4 w-4 mr-1" />
+                        بونص
+                      </Button>
+                      {employee.currentBalance > 0 && (
+                        <Button variant="default" size="sm" className="bg-success hover:bg-success/90">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          تسوية
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -147,7 +205,7 @@ const Staff = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">8</div>
+              <div className="text-2xl font-bold">{staff.length}</div>
               <p className="text-xs text-muted-foreground">موظف نشط</p>
             </CardContent>
           </Card>
@@ -156,38 +214,38 @@ const Staff = () => {
             <CardHeader>
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
                 <DollarSign className="h-4 w-4 mr-2" />
-                إجمالي المرتبات
+                إجمالي الأجور اليومية
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₪20,800</div>
-              <p className="text-xs text-muted-foreground">هذا الشهر</p>
+              <div className="text-2xl font-bold">{staff.reduce((sum, emp) => sum + emp.dailyWage, 0)} ج.م</div>
+              <p className="text-xs text-muted-foreground">اليوم</p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                الخصومات
+                <Wallet className="h-4 w-4 mr-2" />
+                إجمالي السحوبات
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">₪300</div>
-              <p className="text-xs text-muted-foreground">هذا الشهر</p>
+              <div className="text-2xl font-bold text-warning">{staff.reduce((sum, emp) => sum + emp.todayWithdrawals, 0)} ج.م</div>
+              <p className="text-xs text-muted-foreground">اليوم</p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                <Clock className="h-4 w-4 mr-2" />
-                متوسط الحضور
+                <TrendingUp className="h-4 w-4 mr-2" />
+                إجمالي المستحقات
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success">92%</div>
-              <p className="text-xs text-muted-foreground">هذا الشهر</p>
+              <div className="text-2xl font-bold text-success">{staff.reduce((sum, emp) => sum + emp.currentBalance, 0)} ج.م</div>
+              <p className="text-xs text-muted-foreground">الرصيد الحالي</p>
             </CardContent>
           </Card>
         </div>
